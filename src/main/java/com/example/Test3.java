@@ -19,43 +19,68 @@ public class Test3 {
     }
 
     public static void main(String[] args) {
+        Long tableSize=-1L;
+        if(args.length==1){
+            System.out.println("全部导出");
+        }else if(args.length==2){
+            System.out.println("部分导出");
+            try {
+                if(args[1]!= null ) {
+                    tableSize = Long.valueOf(args[1]);
+                }
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
+            }
+        }else {
+            System.out.println("参数有误");
+            return;
+        }
+        String tableName = args[0];
+
         Test3 demo = new Test3();
         try {
-            demo.select();
+              demo.select(tableName,tableSize);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public void select() throws Exception {
+    public void select(String tableName,Long tableSize) throws Exception {
         Connection con = this.getConnection(DRIVER, URL, USER_NAME, PASSWORD);
-        PreparedStatement pstmt = con.prepareStatement("select * from SYS.USERS");
-        ResultSet rs = pstmt.executeQuery();
-        try {
-            this.processResult(rs);
-        } finally {
-            this.closeConnection(con, pstmt);
+        if(tableSize>0L){
+            PreparedStatement pstmt = con.prepareStatement("select * from "+tableName+" limit "+tableSize+" offset 0");
+//            PreparedStatement pstmt = con.prepareStatement("SELECT  Name  FROM  sys.Databases");
+            ResultSet rs = pstmt.executeQuery();
+            try {
+                this.processResult(rs,tableName);
+            } finally {
+                this.closeConnection(con, pstmt);
+            }
+        }else {
+            PreparedStatement pstmt = con.prepareStatement("select * from " + tableName+" limit 10000 offset 0 ");
+            ResultSet rs = pstmt.executeQuery();
+            try {
+                this.processResult(rs,tableName);
+            } finally {
+                this.closeConnection(con, pstmt);
+            }
         }
+
 
     }
 
-    private void processResult(ResultSet rs) throws Exception {
+    private void processResult(ResultSet rs,String tableName) throws Exception {
 
         if (rs.next()) {
             ResultSetMetaData rsmd = rs.getMetaData();
             int colNum = rsmd.getColumnCount();
 
-//            String[] strArray = null;
             List<String> colNameList = new ArrayList<String>();
             for (int i = 1; i <= colNum; i++) {
-//                if (i == 1) {
-//                    System.out.print("第"+i+"行是"+rsmd.getColumnName(i));
-//                } else {
-//                    System.out.print("\t" +"第"+i+"行是"+ rsmd.getColumnName(i));
-//                }
+//                System.out.println(rsmd.getColumnName(i));
                 colNameList.add(rsmd.getColumnName(i));
                 if(i==colNum){
-                    System.out.println("一共"+i+"行");
+                    System.out.println("一共"+i+"列");
                 }
             }
 
@@ -66,13 +91,6 @@ public class Test3 {
             do {
                 ArrayList<String> datas = new ArrayList<String>();
                 for (int i = 1; i <= colNum; i++) {
-//                    if (i == 1) {
-//                        System.out.print(rs.getString(i));
-//                    } else {
-//                        System.out.print("\t"
-//                                + (rs.getString(i) == null ? "" : rs
-//                                .getString(i).trim()));
-//                    }
                     datas.add(rs.getString(i) == null ? "" : rs
                             .getString(i).trim());
                 }
@@ -82,8 +100,8 @@ public class Test3 {
             //调用EXCEL工具类
             System.out.print("\n");
             System.out.println("———————–");
-            System.out.println(map.toString());
-            DBToExcel.createExcel(map,colNameList);
+//            System.out.println(map.toString());
+            DBToExcel.createExcel(map,colNameList,tableName);
         } else {
             System.out.println("query not result.");
         }

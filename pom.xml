@@ -34,10 +34,10 @@
         <dependency>
             <groupId>com.sap.cloud.db.jdbc</groupId>
             <artifactId>ngdbc</artifactId>
-            <version>2.4.76</version>
-            <type>pom</type>
-            <scope>test</scope>
+            <version>2.4.59</version>
+<!--            <type>pom</type>-->
         </dependency>
+
 
         <!-- https://mvnrepository.com/artifact/org.wso2.orbit.org.apache.commons/commons-collections4 -->
         <dependency>
@@ -50,21 +50,31 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <configuration>
+                    <appendAssemblyId>false</appendAssemblyId>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
                     <archive>
                         <manifest>
+                            <!-- 此处指定main方法入口的class -->
                             <mainClass>com.example.Test3</mainClass>
                         </manifest>
                     </archive>
-                    <descriptorRefs>
-                        <descriptorRef>
-                            jar-with-dependencies
-                        </descriptorRef>
-                    </descriptorRefs>
                 </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>assembly</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
+
+
         </plugins>
     </build>
 </project>

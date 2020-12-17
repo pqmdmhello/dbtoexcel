@@ -9,7 +9,7 @@ import org.apache.poi.xssf.usermodel.*;
 
 public class DBToExcel {
 
-    public static void createExcel(Map<String, List<String>> map, List<String> strArray) {
+    public static void createExcel(Map<String, List<String>> map, List<String> strArray,String tableName) {
         // 第一步，创建一个webbook，对应一个Excel文件
         XSSFWorkbook wb = new XSSFWorkbook();
         // 第二步，在webbook中添加一个sheet,对应Excel文件中的sheet
@@ -43,7 +43,12 @@ public class DBToExcel {
 
             // 第六步，将文件存到指定位置
             try {
-                FileOutputStream fout = new FileOutputStream("./user.xls");
+                if(tableName.contains(".")) {
+                    String str1 = tableName.substring(0, tableName.indexOf("."));
+                    String str2 = tableName.substring(str1.length() + 1, tableName.length());
+                    tableName = str2;
+                }
+                FileOutputStream fout = new FileOutputStream("./"+tableName+".xls");
                 wb.write(fout);
                 fout.close();
             } catch (Exception e) {
@@ -51,5 +56,6 @@ public class DBToExcel {
             }
             i++;
         }
+        System.out.println("导出结束");
     }
 }
