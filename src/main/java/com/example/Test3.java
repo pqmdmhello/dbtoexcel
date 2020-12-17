@@ -21,7 +21,7 @@ public class Test3 {
     public static void main(String[] args) {
         Long tableSize=-1L;
         if(args.length==1){
-            System.out.println("全部导出");
+            System.out.println("导出300条");
         }else if(args.length==2){
             System.out.println("部分导出");
             try {
@@ -57,7 +57,7 @@ public class Test3 {
                 this.closeConnection(con, pstmt);
             }
         }else {
-            PreparedStatement pstmt = con.prepareStatement("select * from " + tableName+" limit 10000 offset 0 ");
+            PreparedStatement pstmt = con.prepareStatement("select * from " + tableName+" limit 300 offset 0 ");
             ResultSet rs = pstmt.executeQuery();
             try {
                 this.processResult(rs,tableName);
@@ -88,18 +88,24 @@ public class Test3 {
             System.out.println("———————–");
 
             Map<String, List<String>> map = new HashMap<String, List<String>>();
+            int rows=0;
             do {
+//                System.out.println("第"+(rows+1)+"行");
                 ArrayList<String> datas = new ArrayList<String>();
                 for (int i = 1; i <= colNum; i++) {
-                    datas.add(rs.getString(i) == null ? "" : rs
-                            .getString(i).trim());
+//                    datas.add(rs.getString(i) == null ? "" : rs.getString(i).trim());
+                    datas.add(rs.getString(i));
+//                    System.out.println(rs.getString(i)+" ");
                 }
-                map.put(datas.get(0).toString(),datas);
-
+//                System.out.println("\n");
+                map.put(String.valueOf(rows+1),datas);
+                rows++;
             } while (rs.next());
             //调用EXCEL工具类
+            System.out.println("rows = "+ rows);
             System.out.print("\n");
             System.out.println("———————–");
+            System.out.println("一共有"+map.size()+"行");
 //            System.out.println(map.toString());
             DBToExcel.createExcel(map,colNameList,tableName);
         } else {
